@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "252009200155",
+    "project_id": "explore-8a482",
+    "storage_bucket": "explore-8a482.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:252009200155:android:7b7b195cc0066c948e16be",
+        "android_client_info": {
+          "package_name": "com.explorefaraya.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiJVIB6VML-0Id-hx9pCiqDaHF5iQ7f4k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
