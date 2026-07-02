@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -23,26 +24,30 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.explorefaraya.app.ui.auth.LoginScreen
 import com.explorefaraya.app.ui.auth.SignUpScreen
-import com.explorefaraya.app.ui.booking.PaymentScreen
 import com.explorefaraya.app.ui.dashboard.DashboardScreen
 import com.explorefaraya.app.ui.events.EventDetailScreen
 import com.explorefaraya.app.ui.events.EventsScreen
+import com.explorefaraya.app.ui.explore.ExploreListingDetailScreen
+import com.explorefaraya.app.ui.explore.ExploreScreen
 import com.explorefaraya.app.ui.profile.ProfileScreen
-import com.explorefaraya.app.ui.tickets.MyTicketsScreen
-import com.explorefaraya.app.ui.tickets.TicketDetailScreen
+import com.explorefaraya.app.ui.reservation.MyBookingsScreen
+import com.explorefaraya.app.ui.reservation.PaymentScreen
+import com.explorefaraya.app.ui.reservation.ReservationDetailScreen
 import com.google.firebase.auth.FirebaseAuth
 
 private fun tabIcon(route: String) = when (route) {
     Screen.Dashboard.route -> Icons.Default.Home
     Screen.Events.route -> Icons.Default.Event
-    Screen.Tickets.route -> Icons.Default.ConfirmationNumber
+    Screen.Explore.route -> Icons.Default.Explore
+    Screen.Bookings.route -> Icons.Default.ConfirmationNumber
     else -> Icons.Default.AccountCircle
 }
 
 private fun tabLabel(route: String) = when (route) {
     Screen.Dashboard.route -> "Dashboard"
     Screen.Events.route -> "Events"
-    Screen.Tickets.route -> "Tickets"
+    Screen.Explore.route -> "Explore"
+    Screen.Bookings.route -> "Bookings"
     else -> "Profile"
 }
 
@@ -123,45 +128,64 @@ fun ExploreFarayaNavHost() {
                 val eventId = backStack.arguments?.getString("eventId").orEmpty()
                 EventDetailScreen(
                     eventId = eventId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Explore.route) {
+                ExploreScreen(onListingClick = { listingId ->
+                    navController.navigate(Screen.ExploreDetail.createRoute(listingId))
+                })
+            }
+            composable(
+                route = Screen.ExploreDetail.route,
+                arguments = listOf(navArgument("listingId") { })
+            ) { backStack ->
+                val listingId = backStack.arguments?.getString("listingId").orEmpty()
+                ExploreListingDetailScreen(
+                    listingId = listingId,
                     onBack = { navController.popBackStack() },
-                    onBookNow = { id, quantity ->
-                        navController.navigate(Screen.Payment.createRoute(id, quantity))
+                    onBookNow = { id, partySize, scheduledFor ->
+                        navController.navigate(Screen.ReservationPayment.createRoute(id, partySize, scheduledFor))
                     }
                 )
             }
             composable(
-                route = Screen.Payment.route,
+                route = Screen.ReservationPayment.route,
                 arguments = listOf(
-                    navArgument("eventId") { },
-                    navArgument("quantity") { type = androidx.navigation.NavType.IntType }
+                    navArgument("listingId") { },
+                    navArgument("partySize") { type = androidx.navigation.NavType.IntType },
+                    navArgument("scheduledFor") { }
                 )
             ) { backStack ->
-                val eventId = backStack.arguments?.getString("eventId").orEmpty()
-                val quantity = backStack.arguments?.getInt("quantity") ?: 1
+                val listingId = backStack.arguments?.getString("listingId").orEmpty()
+                val partySize = backStack.arguments?.getInt("partySize") ?: 1
+                val scheduledForRaw = backStack.arguments?.getString("scheduledFor").orEmpty()
+                val scheduledFor = Screen.ReservationPayment.decodeScheduledFor(scheduledForRaw)
                 PaymentScreen(
-                    eventId = eventId,
-                    quantity = quantity,
+                    listingId = listingId,
+                    partySize = partySize,
+                    scheduledFor = scheduledFor,
                     onBack = { navController.popBackStack() },
-                    onPaymentSuccess = { bookingId ->
-                        navController.navigate(Screen.TicketDetail.createRoute(bookingId)) {
-                            popUpTo(Screen.Events.route)
+                    onPaymentSuccess = { reservationId ->
+                        navController.navigate(Screen.ReservationDetail.createRoute(reservationId)) {
+                            popUpTo(Screen.Explore.route)
                         }
                     }
                 )
             }
             composable(
-                route = Screen.TicketDetail.route,
-                arguments = listOf(navArgument("bookingId") { })
+                route = Screen.ReservationDetail.route,
+                arguments = listOf(navArgument("reservationId") { })
             ) { backStack ->
-                val bookingId = backStack.arguments?.getString("bookingId").orEmpty()
-                TicketDetailScreen(
-                    bookingId = bookingId,
+                val reservationId = backStack.arguments?.getString("reservationId").orEmpty()
+                ReservationDetailScreen(
+                    reservationId = reservationId,
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.Tickets.route) {
-                MyTicketsScreen(onTicketClick = { bookingId ->
-                    navController.navigate(Screen.TicketDetail.createRoute(bookingId))
+            composable(Screen.Bookings.route) {
+                MyBookingsScreen(onBookingClick = { reservationId ->
+                    navController.navigate(Screen.ReservationDetail.createRoute(reservationId))
                 })
             }
             composable(Screen.Profile.route) {

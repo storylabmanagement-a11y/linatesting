@@ -70,13 +70,8 @@ fun EventCard(event: EventItem, onClick: () -> Unit) {
                     color = accent
                 )
                 Text(event.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(event.date, style = MaterialTheme.typography.bodyMedium)
+                Text(event.date, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                 Text(event.location, style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    "$${"%.2f".format(event.price)} / person",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
             }
         }
     }

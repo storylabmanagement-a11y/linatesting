@@ -1,4 +1,4 @@
-package com.explorefaraya.app.ui.booking
+package com.explorefaraya.app.ui.reservation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,20 +31,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.explorefaraya.app.data.model.EventCatalog
+import com.explorefaraya.app.data.model.ExploreCatalog
 import com.explorefaraya.app.ui.common.FarayaButton
 import com.explorefaraya.app.ui.common.FarayaTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentScreen(
-    eventId: String,
-    quantity: Int,
+    listingId: String,
+    partySize: Int,
+    scheduledFor: String,
     onBack: () -> Unit,
-    onPaymentSuccess: (bookingId: String) -> Unit,
-    viewModel: BookingViewModel = viewModel()
+    onPaymentSuccess: (reservationId: String) -> Unit,
+    viewModel: ReservationViewModel = viewModel()
 ) {
-    val event = EventCatalog.findById(eventId) ?: return
+    val listing = ExploreCatalog.findById(listingId) ?: return
     val uiState by viewModel.uiState.collectAsState()
 
     var cardName by remember { mutableStateOf("") }
@@ -52,7 +53,7 @@ fun PaymentScreen(
     var expiry by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
 
-    val total = event.price * quantity
+    val total = if (listing.price > 0) listing.price * partySize else 0.0
 
     Scaffold(
         topBar = {
@@ -74,10 +75,9 @@ fun PaymentScreen(
         ) {
             Card(elevation = CardDefaults.cardElevation(defaultElevation = 1.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Text("$quantity ticket(s)", style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Text(listing.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(scheduledFor, style = MaterialTheme.typography.bodyMedium)
+                    Text("$partySize unit(s)", style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "Total: $${"%.2f".format(total)}",
@@ -136,8 +136,8 @@ fun PaymentScreen(
                 text = "Pay $${"%.2f".format(total)}",
                 isLoading = uiState.isProcessing,
                 onClick = {
-                    viewModel.pay(event, quantity, cardNumber, expiry, cvv) { bookingId ->
-                        onPaymentSuccess(bookingId)
+                    viewModel.pay(listing, partySize, scheduledFor, cardNumber, expiry, cvv) { reservationId ->
+                        onPaymentSuccess(reservationId)
                     }
                 }
             )

@@ -1,4 +1,4 @@
-package com.explorefaraya.app.ui.tickets
+package com.explorefaraya.app.ui.reservation
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -36,28 +36,27 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.explorefaraya.app.data.model.Booking
-import com.explorefaraya.app.ui.booking.BookingViewModel
+import com.explorefaraya.app.data.model.Reservation
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketDetailScreen(
-    bookingId: String,
+fun ReservationDetailScreen(
+    reservationId: String,
     onBack: () -> Unit,
-    viewModel: BookingViewModel = viewModel()
+    viewModel: ReservationViewModel = viewModel()
 ) {
-    val booking by viewModel.selectedBooking.collectAsState()
+    val reservation by viewModel.selectedReservation.collectAsState()
 
-    LaunchedEffect(bookingId) {
-        viewModel.loadBooking(bookingId)
+    LaunchedEffect(reservationId) {
+        viewModel.loadReservation(reservationId)
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Your Ticket") },
+                title = { Text("Your Booking") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -66,10 +65,10 @@ fun TicketDetailScreen(
             )
         }
     ) { padding ->
-        val current = booking
+        val current = reservation
         if (current == null) {
             Column(modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp)) {
-                Text("Loading ticket...")
+                Text("Loading booking...")
             }
         } else {
             Column(
@@ -78,14 +77,14 @@ fun TicketDetailScreen(
                     .padding(padding)
                     .padding(20.dp)
             ) {
-                TicketCard(current)
+                ReservationCard(current)
             }
         }
     }
 }
 
 @Composable
-fun TicketCard(booking: Booking) {
+fun ReservationCard(reservation: Reservation) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -98,16 +97,19 @@ fun TicketCard(booking: Booking) {
             ) {
                 Column {
                     Text("EXPLORE FARAYA", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    Text(booking.eventTitle, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Text(reservation.listingTitle, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 }
-                Icon(Icons.Default.CheckCircle, contentDescription = "Paid", tint = Color(0xFF2E9E5B))
+                Icon(Icons.Default.CheckCircle, contentDescription = "Confirmed", tint = Color(0xFF2E9E5B))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            TicketInfoRow(label = "Date", value = booking.eventDate)
-            TicketInfoRow(label = "Location", value = booking.eventLocation)
-            TicketInfoRow(label = "Tickets", value = booking.quantity.toString())
-            TicketInfoRow(label = "Total paid", value = "$${"%.2f".format(booking.totalPrice)}")
+            ReservationInfoRow(label = "Category", value = reservation.category)
+            ReservationInfoRow(label = "When", value = reservation.scheduledFor)
+            ReservationInfoRow(label = "Location", value = reservation.location)
+            ReservationInfoRow(label = "Party size / units", value = reservation.partySize.toString())
+            if (reservation.totalPrice > 0) {
+                ReservationInfoRow(label = "Total paid", value = "$${"%.2f".format(reservation.totalPrice)}")
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
             DashedDivider()
@@ -117,18 +119,18 @@ fun TicketCard(booking: Booking) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val bitmap = remember(booking.ticketNumber) { generateQrBitmap(booking.ticketNumber) }
+                val bitmap = remember(reservation.confirmationNumber) { generateQrBitmap(reservation.confirmationNumber) }
                 bitmap?.let {
                     androidx.compose.foundation.Image(
                         bitmap = it.asImageBitmap(),
-                        contentDescription = "Ticket QR code",
+                        contentDescription = "Booking QR code",
                         modifier = Modifier.size(160.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(booking.ticketNumber, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(reservation.confirmationNumber, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "Show this QR code at entry",
+                    "Show this at check-in",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -138,7 +140,7 @@ fun TicketCard(booking: Booking) {
 }
 
 @Composable
-private fun TicketInfoRow(label: String, value: String) {
+private fun ReservationInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween

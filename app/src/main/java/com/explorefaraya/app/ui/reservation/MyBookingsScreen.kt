@@ -1,4 +1,4 @@
-package com.explorefaraya.app.ui.tickets
+package com.explorefaraya.app.ui.reservation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,26 +23,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.explorefaraya.app.data.model.Booking
+import com.explorefaraya.app.data.model.Reservation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTicketsScreen(
-    onTicketClick: (String) -> Unit,
-    viewModel: TicketsViewModel = viewModel()
+fun MyBookingsScreen(
+    onBookingClick: (String) -> Unit,
+    viewModel: ReservationsViewModel = viewModel()
 ) {
-    val bookings by viewModel.bookings.collectAsState()
+    val reservations by viewModel.reservations.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("My Tickets") }) }
+        topBar = { TopAppBar(title = { Text("My Bookings") }) }
     ) { padding ->
-        if (bookings.isEmpty()) {
+        if (reservations.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "No tickets yet. Book an event from the Events tab to see it here.",
+                    "No bookings yet. Book a restaurant, chalet, activity or ride from the Explore tab to see it here.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -53,8 +53,8 @@ fun MyTicketsScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(bookings, key = { it.id }) { booking ->
-                    BookingSummaryCard(booking = booking, onClick = { onTicketClick(booking.id) })
+                items(reservations, key = { it.id }) { reservation ->
+                    BookingSummaryCard(reservation = reservation, onClick = { onBookingClick(reservation.id) })
                 }
             }
         }
@@ -62,16 +62,17 @@ fun MyTicketsScreen(
 }
 
 @Composable
-private fun BookingSummaryCard(booking: Booking, onClick: () -> Unit) {
+private fun BookingSummaryCard(reservation: Reservation, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(booking.eventTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text(booking.eventDate, style = MaterialTheme.typography.bodyMedium)
+            Text(reservation.listingTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(reservation.category, style = MaterialTheme.typography.bodyMedium)
+            Text(reservation.scheduledFor, style = MaterialTheme.typography.bodyMedium)
             Text(
-                "${booking.quantity} ticket(s) · $${"%.2f".format(booking.totalPrice)} · #${booking.ticketNumber}",
+                "${reservation.partySize} unit(s) · $${"%.2f".format(reservation.totalPrice)} · #${reservation.confirmationNumber}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
