@@ -105,10 +105,9 @@ fun ReservationCard(reservation: Reservation) {
             Spacer(modifier = Modifier.height(16.dp))
             ReservationInfoRow(label = "Category", value = reservation.category)
             ReservationInfoRow(label = "When", value = reservation.scheduledFor)
-            ReservationInfoRow(label = "Location", value = reservation.location)
             ReservationInfoRow(label = "Party size / units", value = reservation.partySize.toString())
-            if (reservation.totalPrice > 0) {
-                ReservationInfoRow(label = "Total paid", value = "$${"%.2f".format(reservation.totalPrice)}")
+            if (reservation.contact.isNotBlank()) {
+                ReservationInfoRow(label = "Contact", value = reservation.contact)
             }
 
             Spacer(modifier = Modifier.height(20.dp))

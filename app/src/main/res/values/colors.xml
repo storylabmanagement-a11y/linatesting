@@ -1,7 +1,10 @@
 <resources>
-    <color name="faraya_blue">#1B4D6B</color>
-    <color name="faraya_teal">#2E86AB</color>
-    <color name="faraya_orange">#F2994A</color>
-    <color name="faraya_snow">#F7FAFC</color>
-    <color name="faraya_ink">#12222E</color>
+    <color name="faraya_primary">#1CA8CB</color>
+    <color name="faraya_heading">#113D48</color>
+    <color name="faraya_body">#6E7070</color>
+    <color name="faraya_smoke_1">#E9F6F9</color>
+    <color name="faraya_smoke_2">#F3F4F6</color>
+    <color name="faraya_yellow">#FFB539</color>
+    <color name="faraya_border">#E9EDF5</color>
+    <color name="faraya_white">#FFFFFF</color>
 </resources>

@@ -20,27 +20,17 @@ data class EventItem(
     val link: String
 )
 
-enum class ExploreCategory(val label: String) {
-    RESTAURANT("Restaurants"),
-    ACTIVITY("Activities"),
-    CHALET("Chalets"),
-    HOTEL("Hotels"),
-    TAXI("Taxi"),
-    DRIVER("Private Driver"),
-    CAMPING("Camping")
-}
-
-/** A bookable listing in the Explore section (restaurant, chalet, hotel room, taxi, driver, camping spot...). */
+/**
+ * A directory listing from explorefaraya.com (restaurant, chalet, hotel, market, church,
+ * service, etc). Bundled from a CSV export of the live site rather than typed by hand.
+ */
 data class ExploreListing(
     val id: String,
-    val category: ExploreCategory,
-    val title: String,
-    val description: String,
-    val location: String,
-    val price: Double,
-    val priceUnit: String,
-    val accentColorHex: String,
-    val link: String
+    val category: String,
+    val name: String,
+    val phone: String,
+    val linkType: String,
+    val imageUrl: String
 )
 
 enum class ReservationStatus { CONFIRMED, CANCELLED }
@@ -51,7 +41,7 @@ data class Reservation(
     val listingId: String = "",
     val listingTitle: String = "",
     val category: String = "",
-    val location: String = "",
+    val contact: String = "",
     val scheduledFor: String = "",
     val partySize: Int = 1,
     val unitPrice: Double = 0.0,

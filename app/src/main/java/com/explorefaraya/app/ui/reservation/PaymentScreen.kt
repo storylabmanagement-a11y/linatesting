@@ -53,12 +53,10 @@ fun PaymentScreen(
     var expiry by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
 
-    val total = if (listing.price > 0) listing.price * partySize else 0.0
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Payment") },
+                title = { Text("Confirm Reservation") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -75,15 +73,10 @@ fun PaymentScreen(
         ) {
             Card(elevation = CardDefaults.cardElevation(defaultElevation = 1.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(listing.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(listing.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(listing.category, style = MaterialTheme.typography.bodyMedium)
                     Text(scheduledFor, style = MaterialTheme.typography.bodyMedium)
                     Text("$partySize unit(s)", style = MaterialTheme.typography.bodyMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Total: $${"%.2f".format(total)}",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
                 }
             }
 
@@ -92,7 +85,7 @@ fun PaymentScreen(
                 Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    "Demo payment — no real charge will be made",
+                    "Demo card on file — no charge now, pricing is handled directly with the venue",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -133,7 +126,7 @@ fun PaymentScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
             FarayaButton(
-                text = "Pay $${"%.2f".format(total)}",
+                text = "Confirm Reservation",
                 isLoading = uiState.isProcessing,
                 onClick = {
                     viewModel.pay(listing, partySize, scheduledFor, cardNumber, expiry, cvv) { reservationId ->

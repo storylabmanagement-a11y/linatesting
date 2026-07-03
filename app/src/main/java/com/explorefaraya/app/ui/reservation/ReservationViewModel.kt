@@ -59,9 +59,8 @@ class ReservationViewModel(
             return
         }
 
-        val unitPrice = if (listing.price > 0) listing.price else 0.0
-        val total = unitPrice * partySize
-
+        // Real listings are a contact directory, not a priced inventory — there's no fare/rate
+        // to charge, so this confirms the reservation request without a monetary total.
         _uiState.value = PaymentUiState(isProcessing = true)
         viewModelScope.launch {
             // Simulated payment authorization delay (no real charge, no gateway wired up).
@@ -69,13 +68,13 @@ class ReservationViewModel(
             try {
                 val reservationId = repository.createReservation(
                     listingId = listing.id,
-                    listingTitle = listing.title,
-                    category = listing.category.label,
-                    location = listing.location,
+                    listingTitle = listing.name,
+                    category = listing.category,
+                    contact = listing.phone,
                     scheduledFor = scheduledFor,
                     partySize = partySize,
-                    unitPrice = unitPrice,
-                    totalPrice = total
+                    unitPrice = 0.0,
+                    totalPrice = 0.0
                 )
                 _uiState.value = PaymentUiState()
                 onSuccess(reservationId)

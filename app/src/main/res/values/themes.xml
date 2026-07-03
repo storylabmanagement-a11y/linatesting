@@ -1,6 +1,7 @@
 <resources>
     <style name="Theme.ExploreFaraya" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/faraya_blue</item>
-        <item name="android:windowBackground">@color/faraya_snow</item>
+        <item name="android:statusBarColor">@color/faraya_white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">@color/faraya_white</item>
     </style>
 </resources>

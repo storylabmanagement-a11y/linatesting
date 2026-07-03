@@ -1,93 +1,97 @@
 package com.explorefaraya.app.data.model
 
+import android.content.Context
+
 /**
- * Static seed catalog for the Explore section.
- * PLACEHOLDER CONTENT — replace with real names/descriptions/photos/links from
- * explorefaraya.com once supplied.
+ * Categories the app treats as bookable (table / room / activity / ride reservation with a
+ * mock payment + QR confirmation). Everything else in the directory is browse-and-contact only
+ * (call, WhatsApp, directions, website) since there is no real inventory to reserve.
  */
+val BOOKABLE_CATEGORIES = setOf(
+    "Chalets & Guesthouses",
+    "Hotels",
+    "Lebanese Restaurants",
+    "International Cuisine",
+    "ATV & Skidoo",
+    "Activity Hub",
+    "Hiking",
+    "Camping & Campsites",
+    "Taxi"
+)
+
+/** Loads the real explorefaraya.com directory from a bundled CSV asset (182 listings + 7 homepage spots). */
 object ExploreCatalog {
-    val listings = listOf(
-        ExploreListing(
-            id = "restaurant-le-sommet",
-            category = ExploreCategory.RESTAURANT,
-            title = "Le Sommet Restaurant",
-            description = "Mountain-view dining with Lebanese and international dishes, cozy fireplace seating.",
-            location = "Faraya Village Center",
-            price = 0.0,
-            priceUnit = "per table",
-            accentColorHex = "#F2994A",
-            link = "https://explorefaraya.com"
-        ),
-        ExploreListing(
-            id = "activity-atv-tour",
-            category = ExploreCategory.ACTIVITY,
-            title = "ATV Mountain Tour",
-            description = "2-hour guided ATV ride through mountain trails and pine forest, safety gear included.",
-            location = "Faraya Adventure Park",
-            price = 60.0,
-            priceUnit = "per person",
-            accentColorHex = "#2E9E5B",
-            link = "https://explorefaraya.com"
-        ),
-        ExploreListing(
-            id = "chalet-pine-view",
-            category = ExploreCategory.CHALET,
-            title = "Pine View Chalet",
-            description = "3-bedroom private chalet with a fireplace, terrace and mountain views.",
-            location = "Faraya Heights",
-            price = 220.0,
-            priceUnit = "per night",
-            accentColorHex = "#1B4D6B",
-            link = "https://explorefaraya.com"
-        ),
-        ExploreListing(
-            id = "hotel-faraya-inn",
-            category = ExploreCategory.HOTEL,
-            title = "Faraya Inn Hotel Room",
-            description = "Comfortable double room with breakfast included, walking distance to the slopes.",
-            location = "Faraya Village",
-            price = 90.0,
-            priceUnit = "per night",
-            accentColorHex = "#2E86AB",
-            link = "https://explorefaraya.com"
-        ),
-        ExploreListing(
-            id = "taxi-village-transfer",
-            category = ExploreCategory.TAXI,
-            title = "Village Taxi Transfer",
-            description = "On-demand taxi across Faraya village and nearby areas.",
-            location = "Faraya Village",
-            price = 12.0,
-            priceUnit = "per ride",
-            accentColorHex = "#12222E",
-            link = "https://explorefaraya.com"
-        ),
-        ExploreListing(
-            id = "driver-full-day",
-            category = ExploreCategory.DRIVER,
-            title = "Private Driver - Full Day",
-            description = "A private driver for the day for mountain trips, airport transfer or sightseeing.",
-            location = "Faraya & surrounding areas",
-            price = 80.0,
-            priceUnit = "per day",
-            accentColorHex = "#8E4EC6",
-            link = "https://explorefaraya.com"
-        ),
-        ExploreListing(
-            id = "camping-pine-forest",
-            category = ExploreCategory.CAMPING,
-            title = "Pine Forest Campsite",
-            description = "Tent and RV spots with fire pits, shared bathrooms and mountain trail access.",
-            location = "Faraya Pine Forest",
-            price = 15.0,
-            priceUnit = "per night",
-            accentColorHex = "#2E9E5B",
-            link = "https://explorefaraya.com"
-        )
-    )
+    private var _listings: List<ExploreListing> = emptyList()
+    val listings: List<ExploreListing> get() = _listings
 
-    fun findById(id: String): ExploreListing? = listings.firstOrNull { it.id == id }
+    fun init(context: Context) {
+        if (_listings.isNotEmpty()) return
+        val items = mutableListOf<ExploreListing>()
+        context.assets.open("explore_listings.csv").bufferedReader(Charsets.UTF_8).useLines { lines ->
+            val iterator = lines.iterator()
+            if (iterator.hasNext()) iterator.next() // skip header row
+            var index = 0
+            while (iterator.hasNext()) {
+                val line = iterator.next()
+                if (line.isBlank()) continue
+                val fields = parseCsvLine(line)
+                if (fields.size < 2) continue
+                items.add(
+                    ExploreListing(
+                        id = index.toString(),
+                        category = fields.getOrElse(0) { "" }.trim(),
+                        name = fields.getOrElse(1) { "" }.trim(),
+                        phone = fields.getOrElse(2) { "" }.trim(),
+                        linkType = fields.getOrElse(3) { "" }.trim(),
+                        imageUrl = fields.getOrElse(4) { "" }.trim()
+                    )
+                )
+                index++
+            }
+        }
+        _listings = items
+    }
 
-    fun byCategory(category: ExploreCategory): List<ExploreListing> =
-        listings.filter { it.category == category }
+    fun categories(): List<String> = _listings.map { it.category }.distinct()
+
+    fun byCategory(category: String): List<ExploreListing> = _listings.filter { it.category == category }
+
+    fun findById(id: String): ExploreListing? = _listings.firstOrNull { it.id == id }
+
+    fun isBookable(category: String): Boolean = category in BOOKABLE_CATEGORIES
+}
+
+/** Minimal RFC4180-ish CSV line parser: handles quoted fields and doubled "" escapes. */
+private fun parseCsvLine(line: String): List<String> {
+    val result = mutableListOf<String>()
+    val current = StringBuilder()
+    var inQuotes = false
+    var i = 0
+    while (i < line.length) {
+        val c = line[i]
+        if (inQuotes) {
+            if (c == '"') {
+                if (i + 1 < line.length && line[i + 1] == '"') {
+                    current.append('"')
+                    i++
+                } else {
+                    inQuotes = false
+                }
+            } else {
+                current.append(c)
+            }
+        } else {
+            when (c) {
+                '"' -> inQuotes = true
+                ',' -> {
+                    result.add(current.toString())
+                    current.setLength(0)
+                }
+                else -> current.append(c)
+            }
+        }
+        i++
+    }
+    result.add(current.toString())
+    return result
 }

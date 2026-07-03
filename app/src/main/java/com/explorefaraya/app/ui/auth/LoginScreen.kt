@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.explorefaraya.app.ui.common.FarayaButton
+import com.explorefaraya.app.ui.common.FarayaLogoHeader
 import com.explorefaraya.app.ui.common.FarayaTextField
 
 @Composable
@@ -43,7 +44,8 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Explore Faraya", style = MaterialTheme.typography.headlineLarge)
+        FarayaLogoHeader()
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             "Welcome back",
             style = MaterialTheme.typography.bodyLarge,

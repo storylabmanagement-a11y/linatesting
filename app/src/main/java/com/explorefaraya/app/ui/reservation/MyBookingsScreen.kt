@@ -72,7 +72,7 @@ private fun BookingSummaryCard(reservation: Reservation, onClick: () -> Unit) {
             Text(reservation.category, style = MaterialTheme.typography.bodyMedium)
             Text(reservation.scheduledFor, style = MaterialTheme.typography.bodyMedium)
             Text(
-                "${reservation.partySize} unit(s) · $${"%.2f".format(reservation.totalPrice)} · #${reservation.confirmationNumber}",
+                "${reservation.partySize} unit(s) · #${reservation.confirmationNumber}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
