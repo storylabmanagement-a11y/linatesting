@@ -38,7 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.explorefaraya.app.ui.common.FarayaButton
 import com.explorefaraya.app.ui.common.FarayaTextField
 import com.explorefaraya.app.ui.theme.FBGold
-import com.explorefaraya.app.ui.theme.FBSurface
+import com.explorefaraya.app.ui.theme.FBCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,7 +149,7 @@ fun SubscriptionScreen(onBack: () -> Unit, viewModel: SubscriptionViewModel = vi
 private fun TierCard(name: String, price: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = if (selected) FBGold.copy(alpha = 0.15f) else FBSurface),
+        colors = CardDefaults.cardColors(containerColor = if (selected) FBGold.copy(alpha = 0.15f) else FBCard),
         onClick = onClick
     ) {
         Column(modifier = Modifier.padding(14.dp)) {

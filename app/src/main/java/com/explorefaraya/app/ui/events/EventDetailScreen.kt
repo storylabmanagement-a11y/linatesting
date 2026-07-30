@@ -2,6 +2,7 @@ package com.explorefaraya.app.ui.events
 
 import android.content.Intent
 import android.provider.CalendarContract
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,6 +50,7 @@ import coil.compose.AsyncImage
 import com.explorefaraya.app.data.model.EventCatalog
 import com.explorefaraya.app.data.model.TicketTier
 import com.explorefaraya.app.ui.common.FarayaButton
+import com.explorefaraya.app.ui.saved.BookmarksViewModel
 import com.explorefaraya.app.ui.theme.FBGold
 import kotlinx.coroutines.delay
 
@@ -58,12 +60,12 @@ fun EventDetailScreen(
     eventId: String,
     onBack: () -> Unit,
     onBuyTickets: (eventId: String, tierName: String, quantity: Int) -> Unit,
-    viewModel: EventsViewModel = viewModel()
+    viewModel: BookmarksViewModel = viewModel()
 ) {
     val event = EventCatalog.findById(eventId) ?: return
     val context = LocalContext.current
-    val bookmarkedIds by viewModel.bookmarkedIds.collectAsState()
-    val isBookmarked = eventId in bookmarkedIds
+    val bookmarks by viewModel.bookmarks.collectAsState()
+    val isBookmarked = eventId in bookmarks.eventIds
 
     var selectedTier by remember { mutableStateOf(event.tiers.firstOrNull()) }
     var quantity by remember { mutableIntStateOf(1) }
@@ -78,7 +80,7 @@ fun EventDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.toggleBookmark(eventId) }) {
+                    IconButton(onClick = { viewModel.toggleEvent(eventId) }) {
                         Icon(
                             if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                             contentDescription = "Bookmark",
@@ -194,21 +196,36 @@ fun EventDetailScreen(
 
 @Composable
 private fun TierRow(tier: TicketTier, selected: Boolean, onSelect: () -> Unit) {
-    Row(
+    androidx.compose.material3.Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onSelect),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = com.explorefaraya.app.ui.theme.FBCard
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (selected) FBGold else com.explorefaraya.app.ui.theme.FBBorder
+        )
     ) {
-        androidx.compose.material3.RadioButton(selected = selected, onClick = onSelect, colors = androidx.compose.material3.RadioButtonDefaults.colors(selectedColor = FBGold))
-        Column(modifier = Modifier.weight(1f).padding(start = 4.dp)) {
-            Text(tier.name, style = MaterialTheme.typography.titleMedium)
-            if (tier.description.isNotBlank()) {
-                Text(tier.description, style = MaterialTheme.typography.bodyMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(tier.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                if (tier.description.isNotBlank()) {
+                    Text(tier.description, style = MaterialTheme.typography.bodyMedium)
+                }
             }
+            Text(
+                "$${"%.0f".format(tier.price)}",
+                style = MaterialTheme.typography.titleMedium,
+                color = if (selected) FBGold else MaterialTheme.colorScheme.onSurface
+            )
         }
-        Text("$${"%.0f".format(tier.price)}", style = MaterialTheme.typography.titleMedium, color = FBGold)
     }
 }
 

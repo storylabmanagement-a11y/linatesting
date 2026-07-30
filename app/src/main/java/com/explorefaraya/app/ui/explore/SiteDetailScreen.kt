@@ -17,6 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Remove
@@ -29,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,20 +43,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.explorefaraya.app.data.model.ExploreCatalog
 import com.explorefaraya.app.ui.common.FarayaButton
 import com.explorefaraya.app.ui.common.FarayaTextField
+import com.explorefaraya.app.ui.saved.BookmarksViewModel
+import com.explorefaraya.app.ui.theme.FBGold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SiteDetailScreen(
     siteId: String,
     onBack: () -> Unit,
-    onBookNow: (siteId: String, partySize: Int, scheduledFor: String) -> Unit
+    onBookNow: (siteId: String, partySize: Int, scheduledFor: String) -> Unit,
+    bookmarksViewModel: BookmarksViewModel = viewModel()
 ) {
     val site = ExploreCatalog.findById(siteId) ?: return
     val context = LocalContext.current
+    val bookmarks by bookmarksViewModel.bookmarks.collectAsState()
+    val isBookmarked = siteId in bookmarks.siteIds
 
     Scaffold(
         topBar = {
@@ -62,6 +71,15 @@ fun SiteDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { bookmarksViewModel.toggleSite(siteId) }) {
+                        Icon(
+                            if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                            contentDescription = "Bookmark",
+                            tint = FBGold
+                        )
                     }
                 }
             )

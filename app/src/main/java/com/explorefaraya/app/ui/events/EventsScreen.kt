@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.explorefaraya.app.data.model.EventCatalog
 import com.explorefaraya.app.data.model.EventItem
 import com.explorefaraya.app.ui.theme.FBGold
-import com.explorefaraya.app.ui.theme.FBSurface
+import com.explorefaraya.app.ui.theme.FBCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +61,8 @@ fun EventsScreen(onEventClick: (String) -> Unit) {
 fun EventCard(event: EventItem, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = FBSurface)
+        colors = CardDefaults.cardColors(containerColor = FBCard),
+        border = if (event.featured) androidx.compose.foundation.BorderStroke(1.dp, FBGold) else null
     ) {
         Column {
             if (event.featured) {

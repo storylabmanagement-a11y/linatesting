@@ -11,8 +11,11 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Explore : Screen("explore")
     data object Events : Screen("events")
-    data object Bookings : Screen("bookings")
+    data object Saved : Screen("saved")
     data object Profile : Screen("profile")
+
+    // Not in the bottom nav — reached from Profile's "My Tickets" section.
+    data object Bookings : Screen("bookings")
 
     data object Search : Screen("search")
     data object Subscription : Screen("subscription")
@@ -46,4 +49,4 @@ sealed class Screen(val route: String) {
     }
 }
 
-val bottomNavItems = listOf(Screen.Home, Screen.Explore, Screen.Events, Screen.Bookings, Screen.Profile)
+val bottomNavItems = listOf(Screen.Home, Screen.Explore, Screen.Events, Screen.Saved, Screen.Profile)

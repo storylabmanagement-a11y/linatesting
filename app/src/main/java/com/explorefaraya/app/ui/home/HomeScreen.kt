@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
@@ -42,9 +44,19 @@ import com.explorefaraya.app.data.model.EventCatalog
 import com.explorefaraya.app.data.model.ExploreCatalog
 import com.explorefaraya.app.data.model.NewsCatalog
 import com.explorefaraya.app.data.model.NewsPost
-import com.explorefaraya.app.ui.common.FarayaLogoHeader
 import com.explorefaraya.app.ui.theme.FBGold
-import com.explorefaraya.app.ui.theme.FBSurface
+import com.explorefaraya.app.ui.theme.FBCard
+import com.google.firebase.auth.FirebaseAuth
+import java.util.Calendar
+
+private fun greeting(): String {
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    return when {
+        hour < 12 -> "Good morning"
+        hour < 18 -> "Good afternoon"
+        else -> "Good evening"
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,8 +68,32 @@ fun HomeScreen(
     onSiteClick: (String) -> Unit,
     onEventClick: (String) -> Unit
 ) {
+    val displayName = FirebaseAuth.getInstance().currentUser?.displayName
+        ?.split(" ")?.firstOrNull()?.takeIf { it.isNotBlank() } ?: "Explorer"
+
     Scaffold(
-        topBar = { TopAppBar(title = { FarayaLogoHeader() }) }
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(greeting(), style = MaterialTheme.typography.bodyMedium)
+                        Text(displayName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    }
+                },
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.background),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile", tint = FBGold, modifier = Modifier.size(18.dp))
+                    }
+                }
+            )
+        }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -70,7 +106,7 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(FBSurface)
+                        .background(FBCard)
                         .clickable(onClick = onSearchClick)
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -130,7 +166,7 @@ private fun QuickLinkChip(label: String, icon: androidx.compose.ui.graphics.vect
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(FBSurface)
+            .background(FBCard)
             .clickable(onClick = onClick)
             .padding(vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -166,7 +202,7 @@ private fun FeaturedCard(title: String, subtitle: String, imageUrl: String?, onC
             .width(220.dp)
             .height(140.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(FBSurface)
+            .background(FBCard)
             .clickable(onClick = onClick)
     ) {
         if (!imageUrl.isNullOrBlank()) {
@@ -206,7 +242,7 @@ private fun NewsCard(post: NewsPost) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = FBSurface)
+        colors = CardDefaults.cardColors(containerColor = FBCard)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(post.category.uppercase(), style = MaterialTheme.typography.labelLarge)

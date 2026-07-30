@@ -3,8 +3,8 @@ package com.explorefaraya.app.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -38,6 +38,7 @@ import com.explorefaraya.app.ui.reservation.EventCheckoutScreen
 import com.explorefaraya.app.ui.reservation.MyBookingsScreen
 import com.explorefaraya.app.ui.reservation.PaymentScreen
 import com.explorefaraya.app.ui.reservation.ReservationDetailScreen
+import com.explorefaraya.app.ui.saved.SavedScreen
 import com.explorefaraya.app.ui.subscription.SubscriptionScreen
 import com.google.firebase.auth.FirebaseAuth
 
@@ -45,7 +46,7 @@ private fun tabIcon(route: String) = when (route) {
     Screen.Home.route -> Icons.Default.Home
     Screen.Explore.route -> Icons.Default.Explore
     Screen.Events.route -> Icons.Default.CalendarMonth
-    Screen.Bookings.route -> Icons.Default.ConfirmationNumber
+    Screen.Saved.route -> Icons.Default.Bookmark
     else -> Icons.Default.AccountCircle
 }
 
@@ -54,7 +55,7 @@ private fun tabLabel(route: String): String = when (route) {
     Screen.Home.route -> stringResource(R.string.nav_home)
     Screen.Explore.route -> stringResource(R.string.nav_explore)
     Screen.Events.route -> stringResource(R.string.nav_events)
-    Screen.Bookings.route -> stringResource(R.string.nav_bookings)
+    Screen.Saved.route -> stringResource(R.string.nav_saved)
     else -> stringResource(R.string.nav_profile)
 }
 
@@ -240,12 +241,20 @@ fun ExploreFarayaNavHost() {
             composable(Screen.Bookings.route) {
                 MyBookingsScreen(onBookingClick = { id -> navController.navigate(Screen.ReservationDetail.createRoute(id)) })
             }
+            composable(Screen.Saved.route) {
+                SavedScreen(
+                    onSiteClick = { id -> navController.navigate(Screen.SiteDetail.createRoute(id)) },
+                    onEventClick = { id -> navController.navigate(Screen.EventDetail.createRoute(id)) }
+                )
+            }
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     onSignedOut = {
                         navController.navigate(Screen.Login.route) { popUpTo(0) }
                     },
-                    onSubscriptionClick = { navController.navigate(Screen.Subscription.route) }
+                    onSubscriptionClick = { navController.navigate(Screen.Subscription.route) },
+                    onBookingsClick = { navController.navigate(Screen.Bookings.route) },
+                    onSavedClick = { navController.navigate(Screen.Saved.route) }
                 )
             }
         }

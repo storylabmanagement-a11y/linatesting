@@ -3,6 +3,6 @@
     <string name="nav_home">Accueil</string>
     <string name="nav_explore">Explorer</string>
     <string name="nav_events">Événements</string>
-    <string name="nav_bookings">Réservations</string>
+    <string name="nav_saved">Enregistrés</string>
     <string name="nav_profile">Profil</string>
 </resources>
