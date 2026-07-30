@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -35,20 +38,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.explorefaraya.app.data.model.ExploreCatalog
-import com.explorefaraya.app.data.model.ExploreListing
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Place
+import com.explorefaraya.app.data.model.SiteCategory
+import com.explorefaraya.app.data.model.TouristSite
+import com.explorefaraya.app.ui.theme.FBGold
+import com.explorefaraya.app.ui.theme.FBSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploreScreen(onListingClick: (String) -> Unit) {
-    val categories = remember { ExploreCatalog.categories() }
-    var selectedCategory by remember { mutableStateOf<String?>(null) }
-
-    val listings = selectedCategory?.let { ExploreCatalog.byCategory(it) } ?: ExploreCatalog.listings
+fun ExploreScreen(onSiteClick: (String) -> Unit) {
+    var selectedCategory by remember { mutableStateOf<SiteCategory?>(null) }
+    val sites = selectedCategory?.let { ExploreCatalog.byCategory(it) } ?: ExploreCatalog.sites
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Explore Faraya") }) }
+        topBar = { TopAppBar(title = { Text("Explore") }) }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             LazyRow(
@@ -62,13 +64,11 @@ fun ExploreScreen(onListingClick: (String) -> Unit) {
                         label = { Text("All") }
                     )
                 }
-                items(categories) { category ->
+                items(SiteCategory.entries) { category ->
                     FilterChip(
                         selected = selectedCategory == category,
-                        onClick = {
-                            selectedCategory = if (selectedCategory == category) null else category
-                        },
-                        label = { Text(category) }
+                        onClick = { selectedCategory = if (selectedCategory == category) null else category },
+                        label = { Text(category.label) }
                     )
                 }
             }
@@ -78,8 +78,8 @@ fun ExploreScreen(onListingClick: (String) -> Unit) {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(listings, key = { it.id }) { listing ->
-                    ExploreListingCard(listing = listing, onClick = { onListingClick(listing.id) })
+                items(sites, key = { it.id }) { site ->
+                    SiteCard(site = site, onClick = { onSiteClick(site.id) })
                 }
             }
         }
@@ -87,42 +87,35 @@ fun ExploreScreen(onListingClick: (String) -> Unit) {
 }
 
 @Composable
-private fun ExploreListingCard(listing: ExploreListing, onClick: () -> Unit) {
+private fun SiteCard(site: TouristSite, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = FBSurface)
     ) {
         Row(modifier = Modifier.padding(12.dp)) {
-            if (listing.imageUrl.isNotBlank()) {
+            val photo = site.photos.firstOrNull()
+            if (!photo.isNullOrBlank()) {
                 AsyncImage(
-                    model = listing.imageUrl,
-                    contentDescription = listing.name,
+                    model = photo,
+                    contentDescription = site.name,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                    modifier = Modifier.size(72.dp).clip(RoundedCornerShape(10.dp))
                 )
             } else {
                 androidx.compose.foundation.layout.Box(
                     modifier = Modifier
                         .size(72.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                        .background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Place, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Terrain, contentDescription = null, tint = FBGold)
                 }
             }
-            Column(
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(listing.category.uppercase(), style = MaterialTheme.typography.labelLarge)
-                Text(listing.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                if (listing.phone.isNotBlank()) {
-                    Text(listing.phone, style = MaterialTheme.typography.bodyMedium)
-                }
+            Column(modifier = Modifier.padding(start = 12.dp).fillMaxWidth()) {
+                Text(site.category.label.uppercase(), style = MaterialTheme.typography.labelLarge)
+                Text(site.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(site.shortDescription, style = MaterialTheme.typography.bodyMedium, maxLines = 2)
             }
         }
     }

@@ -8,74 +8,70 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.explorefaraya.app.R
 
-// Matches explorefaraya.com's Themeholy "Tourm" theme fonts: Manrope for
-// headings, Inter for body text, Montez (cursive) for decorative taglines.
-val FarayaManrope = FontFamily(
-    Font(R.font.manrope_regular, FontWeight.Normal),
-    Font(R.font.manrope_medium, FontWeight.Medium),
-    Font(R.font.manrope_bold, FontWeight.Bold),
-    Font(R.font.manrope_extrabold, FontWeight.ExtraBold)
+// Editorial serif for headers, clean sans for body — "boutique concierge", not
+// generic tourism-board styling.
+val FBSerif = FontFamily(
+    Font(R.font.playfair_regular, FontWeight.Normal),
+    Font(R.font.playfair_bold, FontWeight.Bold),
+    Font(R.font.playfair_black, FontWeight.Black)
 )
 
-val FarayaInter = FontFamily(
+val FBSans = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),
     Font(R.font.inter_medium, FontWeight.Medium),
     Font(R.font.inter_semibold, FontWeight.SemiBold),
     Font(R.font.inter_bold, FontWeight.Bold)
 )
 
-val FarayaMontez = FontFamily(
-    Font(R.font.montez_regular, FontWeight.Normal)
-)
-
 val ExploreFarayaTypography = Typography(
     headlineLarge = TextStyle(
-        fontFamily = FarayaManrope,
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 30.sp,
-        lineHeight = 36.sp,
-        color = FarayaHeading
+        fontFamily = FBSerif,
+        fontWeight = FontWeight.Black,
+        fontSize = 32.sp,
+        lineHeight = 38.sp,
+        color = FBOffWhite
     ),
     headlineMedium = TextStyle(
-        fontFamily = FarayaManrope,
+        fontFamily = FBSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 30.sp,
-        color = FarayaHeading
+        fontSize = 26.sp,
+        lineHeight = 32.sp,
+        color = FBOffWhite
     ),
     titleLarge = TextStyle(
-        fontFamily = FarayaManrope,
+        fontFamily = FBSerif,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
         lineHeight = 26.sp,
-        color = FarayaHeading
+        color = FBOffWhite
     ),
     titleMedium = TextStyle(
-        fontFamily = FarayaManrope,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
+        fontFamily = FBSerif,
+        fontWeight = FontWeight.Bold,
+        fontSize = 17.sp,
         lineHeight = 22.sp,
-        color = FarayaHeading
+        color = FBOffWhite
     ),
     bodyLarge = TextStyle(
-        fontFamily = FarayaInter,
+        fontFamily = FBSans,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        color = FarayaBody
+        color = FBMutedGray
     ),
     bodyMedium = TextStyle(
-        fontFamily = FarayaInter,
+        fontFamily = FBSans,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        color = FarayaBody
+        color = FBMutedGray
     ),
     labelLarge = TextStyle(
-        fontFamily = FarayaInter,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        color = FarayaPrimary
+        fontFamily = FBSans,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        letterSpacing = 1.2.sp,
+        color = FBGold
     ),
 )

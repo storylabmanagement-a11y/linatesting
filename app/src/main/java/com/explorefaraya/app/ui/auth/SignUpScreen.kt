@@ -76,6 +76,12 @@ fun SignUpScreen(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
+        GoogleSignInButton(
+            onIdToken = { token -> viewModel.signInWithGoogleIdToken(token, onSignUpSuccess) },
+            onError = { }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
         TextButton(onClick = onNavigateToLogin) {
             Text("Already have an account? Log in")
         }

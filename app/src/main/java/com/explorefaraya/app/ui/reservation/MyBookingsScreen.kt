@@ -71,8 +71,9 @@ private fun BookingSummaryCard(reservation: Reservation, onClick: () -> Unit) {
             Text(reservation.listingTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(reservation.category, style = MaterialTheme.typography.bodyMedium)
             Text(reservation.scheduledFor, style = MaterialTheme.typography.bodyMedium)
+            val tierSuffix = if (reservation.tierName.isNotBlank()) " · ${reservation.tierName}" else ""
             Text(
-                "${reservation.partySize} unit(s) · #${reservation.confirmationNumber}",
+                "${reservation.partySize} unit(s)$tierSuffix · #${reservation.confirmationNumber}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

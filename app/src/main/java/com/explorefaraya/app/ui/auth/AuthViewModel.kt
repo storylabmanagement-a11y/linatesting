@@ -62,6 +62,20 @@ class AuthViewModel(
         }
     }
 
+    fun signInWithGoogleIdToken(idToken: String, onSuccess: () -> Unit) {
+        _uiState.value = AuthUiState(isLoading = true)
+        viewModelScope.launch {
+            try {
+                val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+                repository.signInWithCredential(credential)
+                _uiState.value = AuthUiState()
+                onSuccess()
+            } catch (e: Exception) {
+                _uiState.value = AuthUiState(errorMessage = e.message ?: "Google sign-in failed.")
+            }
+        }
+    }
+
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }

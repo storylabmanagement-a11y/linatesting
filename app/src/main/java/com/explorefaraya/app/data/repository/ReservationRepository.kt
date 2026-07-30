@@ -40,22 +40,26 @@ class ReservationRepository(
     }
 
     suspend fun createReservation(
+        type: String,
         listingId: String,
         listingTitle: String,
         category: String,
         contact: String,
         scheduledFor: String,
+        tierName: String = "",
         partySize: Int,
         unitPrice: Double,
         totalPrice: Double
     ): String {
-        val confirmationNumber = "EF-" + UUID.randomUUID().toString().take(8).uppercase()
+        val confirmationNumber = "FB-" + UUID.randomUUID().toString().take(8).uppercase()
         val reservation = hashMapOf(
+            "type" to type,
             "listingId" to listingId,
             "listingTitle" to listingTitle,
             "category" to category,
             "contact" to contact,
             "scheduledFor" to scheduledFor,
+            "tierName" to tierName,
             "partySize" to partySize,
             "unitPrice" to unitPrice,
             "totalPrice" to totalPrice,

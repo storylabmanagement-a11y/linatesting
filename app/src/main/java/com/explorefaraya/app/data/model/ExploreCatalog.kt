@@ -2,63 +2,141 @@ package com.explorefaraya.app.data.model
 
 import android.content.Context
 
-/**
- * Categories the app treats as bookable (table / room / activity / ride reservation with a
- * mock payment + QR confirmation). Everything else in the directory is browse-and-contact only
- * (call, WhatsApp, directions, website) since there is no real inventory to reserve.
- */
-val BOOKABLE_CATEGORIES = setOf(
-    "Chalets & Guesthouses",
-    "Hotels",
-    "Lebanese Restaurants",
-    "International Cuisine",
-    "ATV & Skidoo",
-    "Activity Hub",
-    "Hiking",
-    "Camping & Campsites",
-    "Taxi"
+private val CATEGORY_MAP: Map<String, SiteCategory> = mapOf(
+    "Chalets & Guesthouses" to SiteCategory.DINING,
+    "Hotels" to SiteCategory.DINING,
+    "Lebanese Restaurants" to SiteCategory.DINING,
+    "International Cuisine" to SiteCategory.DINING,
+    "Coffee Shops" to SiteCategory.DINING,
+    "Sweets & Desserts" to SiteCategory.DINING,
+    "Night Life & Pubs" to SiteCategory.NIGHTLIFE,
+    "ATV & Skidoo" to SiteCategory.ADVENTURE,
+    "Activity Hub" to SiteCategory.ADVENTURE,
+    "Ski Shops" to SiteCategory.SKI,
+    "Hiking" to SiteCategory.NATURE,
+    "Camping & Campsites" to SiteCategory.NATURE,
+    "Churches & Religious Tourism" to SiteCategory.CULTURAL
 )
 
-/** Loads the real explorefaraya.com directory from a bundled CSV asset (182 listings + 7 homepage spots). */
+/** Directory categories excluded from the curated Explore experience (off-brand utility listings). */
+private val EXCLUDED_CATEGORIES = setOf(
+    "Markets", "Snacks", "Bakeries & Saj", "Others", "Butchers", "Shisha Shops",
+    "Dollar Stores", "Electronic Stores", "Money Transfer", "Gas Stations", "Taxi",
+    "Hairdressers", "Pharmacies", "Kids Animation & Fun", "Decoration",
+    "Board Games", "Diet & Nutrition", "Government Representation", "Clothing & Lingerie"
+)
+
+private val BOOKABLE_SOURCE_CATEGORIES = setOf(
+    "Chalets & Guesthouses", "Hotels", "Lebanese Restaurants", "International Cuisine"
+)
+
+private val CULTURAL_HOMEPAGE_SPOTS = setOf("Saint Charbel", "The Cross")
+
+/** Loads the curated "Faraya & Beyond" touristic sites: filtered/remapped from the real
+ * explorefaraya.com directory CSV, plus a handful of editorially seeded flagship sites. */
 object ExploreCatalog {
-    private var _listings: List<ExploreListing> = emptyList()
-    val listings: List<ExploreListing> get() = _listings
+    private var _sites: List<TouristSite> = emptyList()
+    val sites: List<TouristSite> get() = _sites
 
     fun init(context: Context) {
-        if (_listings.isNotEmpty()) return
-        val items = mutableListOf<ExploreListing>()
+        if (_sites.isNotEmpty()) return
+        val fromCsv = mutableListOf<TouristSite>()
         context.assets.open("explore_listings.csv").bufferedReader(Charsets.UTF_8).useLines { lines ->
             val iterator = lines.iterator()
-            if (iterator.hasNext()) iterator.next() // skip header row
+            if (iterator.hasNext()) iterator.next() // skip header
             var index = 0
             while (iterator.hasNext()) {
                 val line = iterator.next()
                 if (line.isBlank()) continue
                 val fields = parseCsvLine(line)
                 if (fields.size < 2) continue
-                items.add(
-                    ExploreListing(
-                        id = index.toString(),
-                        category = fields.getOrElse(0) { "" }.trim(),
-                        name = fields.getOrElse(1) { "" }.trim(),
-                        phone = fields.getOrElse(2) { "" }.trim(),
-                        linkType = fields.getOrElse(3) { "" }.trim(),
-                        imageUrl = fields.getOrElse(4) { "" }.trim()
+                val rawCategory = fields.getOrElse(0) { "" }.trim()
+                if (rawCategory in EXCLUDED_CATEGORIES) { index++; continue }
+
+                val name = fields.getOrElse(1) { "" }.trim()
+                val phone = fields.getOrElse(2) { "" }.trim()
+                val imageUrl = fields.getOrElse(4) { "" }.trim()
+
+                val siteCategory: SiteCategory = if (rawCategory == "Popular Touristic Destinations (Homepage)") {
+                    if (name in CULTURAL_HOMEPAGE_SPOTS) SiteCategory.CULTURAL else SiteCategory.NATURE
+                } else {
+                    val mapped = CATEGORY_MAP[rawCategory]
+                    if (mapped == null) { index++; continue }
+                    mapped
+                }
+
+                fromCsv.add(
+                    TouristSite(
+                        id = "csv-$index",
+                        name = name,
+                        category = siteCategory,
+                        shortDescription = "A local favorite in the Faraya & Beyond region.",
+                        longDescription = "Part of the Faraya & Beyond directory. Full editorial description coming soon.",
+                        photos = if (imageUrl.isNotBlank()) listOf(imageUrl) else emptyList(),
+                        hours = "Contact for hours",
+                        entryFee = "",
+                        phone = phone,
+                        driveTimeBeirut = "~1h 15m",
+                        driveTimeJounieh = "~40 min",
+                        bookable = rawCategory in BOOKABLE_SOURCE_CATEGORIES
                     )
                 )
                 index++
             }
         }
-        _listings = items
+
+        _sites = fromCsv + editorialSeedSites()
     }
 
-    fun categories(): List<String> = _listings.map { it.category }.distinct()
+    private fun editorialSeedSites(): List<TouristSite> = listOf(
+        TouristSite(
+            id = "seed-mzaar",
+            name = "Mzaar Ski Resort",
+            category = SiteCategory.SKI,
+            shortDescription = "The largest ski resort in the Middle East, with slopes for every level.",
+            longDescription = "Mzaar Kfardebian is the region's flagship ski destination, with a wide range of runs, lift access, and a lively après-ski scene. Best visited December through March for snow sports, and in summer for mountain views and cooler air.",
+            photos = emptyList(),
+            hours = "8:30 AM - 4:30 PM (winter season)",
+            entryFee = "Day pass pricing varies by season",
+            phone = "",
+            driveTimeBeirut = "~1h 15m",
+            driveTimeJounieh = "~45 min",
+            featured = true
+        ),
+        TouristSite(
+            id = "seed-faqra-cliffs",
+            name = "Faqra Cliffs",
+            category = SiteCategory.NATURE,
+            shortDescription = "Dramatic limestone cliffs with sweeping valley views.",
+            longDescription = "Faqra's cliffs are one of the region's most photographed natural landmarks — a striking rock formation overlooking the valley, popular for short hikes, photography, and sunset views.",
+            photos = emptyList(),
+            hours = "Daylight hours",
+            entryFee = "Free",
+            phone = "",
+            driveTimeBeirut = "~1h 20m",
+            driveTimeJounieh = "~50 min",
+            featured = true
+        ),
+        TouristSite(
+            id = "seed-faqra-ruins",
+            name = "Faqra Roman Ruins",
+            category = SiteCategory.CULTURAL,
+            shortDescription = "Ancient Roman temple ruins set against the mountains.",
+            longDescription = "A well-preserved Roman archaeological site featuring temple remains dating back centuries, set in a striking mountain landscape — a quieter alternative to Lebanon's larger Roman sites.",
+            photos = emptyList(),
+            hours = "9:00 AM - 5:00 PM",
+            entryFee = "Small entry fee",
+            phone = "",
+            driveTimeBeirut = "~1h 20m",
+            driveTimeJounieh = "~50 min"
+        )
+    )
 
-    fun byCategory(category: String): List<ExploreListing> = _listings.filter { it.category == category }
+    fun findById(id: String): TouristSite? = _sites.firstOrNull { it.id == id }
 
-    fun findById(id: String): ExploreListing? = _listings.firstOrNull { it.id == id }
+    fun byCategory(category: SiteCategory): List<TouristSite> = _sites.filter { it.category == category }
 
-    fun isBookable(category: String): Boolean = category in BOOKABLE_CATEGORIES
+    fun featured(): List<TouristSite> = _sites.filter { it.featured }
 }
 
 /** Minimal RFC4180-ish CSV line parser: handles quoted fields and doubled "" escapes. */

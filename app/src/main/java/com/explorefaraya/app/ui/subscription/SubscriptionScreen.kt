@@ -1,5 +1,6 @@
-package com.explorefaraya.app.ui.reservation
+package com.explorefaraya.app.ui.subscription
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,36 +22,29 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.explorefaraya.app.data.model.ExploreCatalog
 import com.explorefaraya.app.ui.common.FarayaButton
 import com.explorefaraya.app.ui.common.FarayaTextField
+import com.explorefaraya.app.ui.theme.FBGold
+import com.explorefaraya.app.ui.theme.FBSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaymentScreen(
-    siteId: String,
-    partySize: Int,
-    scheduledFor: String,
-    onBack: () -> Unit,
-    onPaymentSuccess: (reservationId: String) -> Unit,
-    viewModel: ReservationViewModel = viewModel()
-) {
-    val site = ExploreCatalog.findById(siteId) ?: return
+fun SubscriptionScreen(onBack: () -> Unit, viewModel: SubscriptionViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
-
-    var cardName by remember { mutableStateOf("") }
+    var selectedTier by remember { mutableStateOf("Monthly") }
     var cardNumber by remember { mutableStateOf("") }
     var expiry by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
@@ -56,7 +52,7 @@ fun PaymentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Confirm Reservation") },
+                title = { Text("Faraya & Beyond Insider") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -68,30 +64,46 @@ fun PaymentScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(padding)
                 .padding(20.dp)
         ) {
-            Card(elevation = CardDefaults.cardElevation(defaultElevation = 1.dp), modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(site.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(site.category.label, style = MaterialTheme.typography.bodyMedium)
-                    Text(scheduledFor, style = MaterialTheme.typography.bodyMedium)
-                    Text("$partySize guest(s)", style = MaterialTheme.typography.bodyMedium)
+            if (uiState.isPremium) {
+                Row {
+                    Icon(Icons.Default.Star, contentDescription = null, tint = FBGold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("You're an Insider member (${uiState.tier})", style = MaterialTheme.typography.titleMedium)
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Enjoy early-bird ticket drops, exclusive events, discounted pricing, and a seasonal guide every 3 months.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                TextButton(onClick = { viewModel.cancel() }) { Text("Cancel membership") }
+                return@Column
+            }
+
+            Text("Go Insider", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            listOf(
+                "Early-bird access to event ticket drops before public release",
+                "One curated seasonal guide delivered every 3 months",
+                "Exclusive access to select tickets and invite-only events",
+                "Discounted pricing on tickets and partner venues",
+                "Gold member badge on your profile"
+            ).forEach {
+                Text("• $it", style = MaterialTheme.typography.bodyLarge)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TierCard("Monthly", "$10/mo", selectedTier == "Monthly", Modifier.weight(1f)) { selectedTier = "Monthly" }
+                TierCard("Annual", "$100/yr — 2 months free", selectedTier == "Annual", Modifier.weight(1f)) { selectedTier = "Annual" }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            Row {
-                Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    "Demo card on file — no charge now, pricing is handled directly with the venue",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            FarayaTextField(value = cardName, onValueChange = { cardName = it }, label = "Name on card")
+            Text("Demo payment — no real recurring charge will be set up", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(12.dp))
             FarayaTextField(
                 value = cardNumber,
@@ -125,14 +137,24 @@ fun PaymentScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
             FarayaButton(
-                text = "Confirm Reservation",
+                text = "Become an Insider",
                 isLoading = uiState.isProcessing,
-                onClick = {
-                    viewModel.reserveSite(site, partySize, scheduledFor, cardNumber, expiry, cvv) { reservationId ->
-                        onPaymentSuccess(reservationId)
-                    }
-                }
+                onClick = { viewModel.upgrade(selectedTier, cardNumber, expiry, cvv) {} }
             )
+        }
+    }
+}
+
+@Composable
+private fun TierCard(name: String, price: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = if (selected) FBGold.copy(alpha = 0.15f) else FBSurface),
+        onClick = onClick
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Text(name, style = MaterialTheme.typography.titleMedium)
+            Text(price, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">فاريا وما وراءها</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_explore">استكشف</string>
+    <string name="nav_events">الفعاليات</string>
+    <string name="nav_bookings">الحجوزات</string>
+    <string name="nav_profile">الملف الشخصي</string>
+</resources>

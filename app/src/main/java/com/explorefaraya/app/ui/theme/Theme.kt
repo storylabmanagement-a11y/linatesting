@@ -1,33 +1,32 @@
 package com.explorefaraya.app.ui.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
-// The site (explorefaraya.com) is light-themed only, so the app always uses
-// this scheme regardless of the device's system dark-mode setting, to stay
-// visually consistent with the brand.
-private val FarayaColors = lightColorScheme(
-    primary = FarayaPrimary,
-    onPrimary = FarayaWhite,
-    secondary = FarayaHeading,
-    onSecondary = FarayaWhite,
-    tertiary = FarayaYellow,
-    onTertiary = FarayaBlack,
-    background = FarayaWhite,
-    onBackground = FarayaBody,
-    surface = FarayaWhite,
-    onSurface = FarayaBody,
-    surfaceVariant = FarayaSmoke2,
-    onSurfaceVariant = FarayaBody,
-    outline = FarayaBorder,
-    error = FarayaError,
+// "Faraya & Beyond" is a black/gold editorial identity — always dark, regardless
+// of the device's system theme, to stay on-brand.
+private val FBColors = darkColorScheme(
+    primary = FBGold,
+    onPrimary = FBBlack,
+    secondary = FBGoldSoft,
+    onSecondary = FBBlack,
+    tertiary = FBGold,
+    onTertiary = FBBlack,
+    background = FBBlack,
+    onBackground = FBOffWhite,
+    surface = FBSurface,
+    onSurface = FBOffWhite,
+    surfaceVariant = FBSurface,
+    onSurfaceVariant = FBMutedGray,
+    outline = FBBorder,
+    error = FBError,
 )
 
 @Composable
 fun ExploreFarayaTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = FarayaColors,
+        colorScheme = FBColors,
         typography = ExploreFarayaTypography,
         content = content
     )

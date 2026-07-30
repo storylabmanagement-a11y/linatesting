@@ -6,27 +6,39 @@ import java.net.URLEncoder
 sealed class Screen(val route: String) {
     data object Login : Screen("login")
     data object SignUp : Screen("signup")
+    data object Onboarding : Screen("onboarding")
 
-    data object Dashboard : Screen("dashboard")
-    data object Events : Screen("events")
+    data object Home : Screen("home")
     data object Explore : Screen("explore")
+    data object Events : Screen("events")
     data object Bookings : Screen("bookings")
     data object Profile : Screen("profile")
+
+    data object Search : Screen("search")
+    data object Subscription : Screen("subscription")
+
+    data object SiteDetail : Screen("site_detail/{siteId}") {
+        fun createRoute(siteId: String) = "site_detail/$siteId"
+    }
 
     data object EventDetail : Screen("event_detail/{eventId}") {
         fun createRoute(eventId: String) = "event_detail/$eventId"
     }
 
-    data object ExploreDetail : Screen("explore_detail/{listingId}") {
-        fun createRoute(listingId: String) = "explore_detail/$listingId"
-    }
-
-    data object ReservationPayment : Screen("reservation_payment/{listingId}/{partySize}/{scheduledFor}") {
+    data object ListingPayment : Screen("listing_payment/{listingId}/{partySize}/{scheduledFor}") {
         fun createRoute(listingId: String, partySize: Int, scheduledFor: String): String {
             val encoded = URLEncoder.encode(scheduledFor, "UTF-8")
-            return "reservation_payment/$listingId/$partySize/$encoded"
+            return "listing_payment/$listingId/$partySize/$encoded"
         }
-        fun decodeScheduledFor(value: String): String = URLDecoder.decode(value, "UTF-8")
+        fun decode(value: String): String = URLDecoder.decode(value, "UTF-8")
+    }
+
+    data object EventCheckout : Screen("event_checkout/{eventId}/{tierName}/{quantity}") {
+        fun createRoute(eventId: String, tierName: String, quantity: Int): String {
+            val encoded = URLEncoder.encode(tierName, "UTF-8")
+            return "event_checkout/$eventId/$encoded/$quantity"
+        }
+        fun decode(value: String): String = URLDecoder.decode(value, "UTF-8")
     }
 
     data object ReservationDetail : Screen("reservation_detail/{reservationId}") {
@@ -34,4 +46,4 @@ sealed class Screen(val route: String) {
     }
 }
 
-val bottomNavItems = listOf(Screen.Dashboard, Screen.Events, Screen.Explore, Screen.Bookings, Screen.Profile)
+val bottomNavItems = listOf(Screen.Home, Screen.Explore, Screen.Events, Screen.Bookings, Screen.Profile)

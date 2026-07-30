@@ -1,10 +1,5 @@
 <resources>
-    <color name="faraya_primary">#1CA8CB</color>
-    <color name="faraya_heading">#113D48</color>
-    <color name="faraya_body">#6E7070</color>
-    <color name="faraya_smoke_1">#E9F6F9</color>
-    <color name="faraya_smoke_2">#F3F4F6</color>
-    <color name="faraya_yellow">#FFB539</color>
-    <color name="faraya_border">#E9EDF5</color>
-    <color name="faraya_white">#FFFFFF</color>
+    <color name="fb_black">#0A0A0A</color>
+    <color name="fb_gold">#C9A227</color>
+    <color name="fb_off_white">#F5F1E8</color>
 </resources>

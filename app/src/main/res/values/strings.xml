@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">Explore Faraya</string>
+    <string name="app_name">Faraya &amp; Beyond</string>
+    <!-- Replace once Google Sign-In is enabled in the Firebase console and the
+         updated google-services.json (with a client_type 3 oauth entry) is sent back. -->
+    <string name="google_web_client_id" translatable="false">REPLACE_WITH_REAL_WEB_CLIENT_ID</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_explore">Explore</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_bookings">Bookings</string>
+    <string name="nav_profile">Profile</string>
 </resources>

@@ -96,7 +96,7 @@ fun ReservationCard(reservation: Reservation) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("EXPLORE FARAYA", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    Text("FARAYA & BEYOND", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     Text(reservation.listingTitle, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 }
                 Icon(Icons.Default.CheckCircle, contentDescription = "Confirmed", tint = Color(0xFF2E9E5B))
@@ -105,7 +105,13 @@ fun ReservationCard(reservation: Reservation) {
             Spacer(modifier = Modifier.height(16.dp))
             ReservationInfoRow(label = "Category", value = reservation.category)
             ReservationInfoRow(label = "When", value = reservation.scheduledFor)
-            ReservationInfoRow(label = "Party size / units", value = reservation.partySize.toString())
+            if (reservation.tierName.isNotBlank()) {
+                ReservationInfoRow(label = "Ticket Tier", value = reservation.tierName)
+            }
+            ReservationInfoRow(label = if (reservation.type == "event") "Tickets" else "Party size", value = reservation.partySize.toString())
+            if (reservation.totalPrice > 0) {
+                ReservationInfoRow(label = "Total paid", value = "$${"%.2f".format(reservation.totalPrice)}")
+            }
             if (reservation.contact.isNotBlank()) {
                 ReservationInfoRow(label = "Contact", value = reservation.contact)
             }

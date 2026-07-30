@@ -1,0 +1,31 @@
+name: Deploy Admin Panel
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "admin/**"
+  workflow_dispatch: {}
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload admin site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: admin
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

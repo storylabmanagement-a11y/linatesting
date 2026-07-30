@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -31,21 +30,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.explorefaraya.app.data.model.ExploreCatalog
+import com.explorefaraya.app.data.model.EventCatalog
 import com.explorefaraya.app.ui.common.FarayaButton
 import com.explorefaraya.app.ui.common.FarayaTextField
+import com.explorefaraya.app.ui.theme.FBGold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaymentScreen(
-    siteId: String,
-    partySize: Int,
-    scheduledFor: String,
+fun EventCheckoutScreen(
+    eventId: String,
+    tierName: String,
+    quantity: Int,
     onBack: () -> Unit,
     onPaymentSuccess: (reservationId: String) -> Unit,
     viewModel: ReservationViewModel = viewModel()
 ) {
-    val site = ExploreCatalog.findById(siteId) ?: return
+    val event = EventCatalog.findById(eventId) ?: return
+    val tier = event.tiers.firstOrNull { it.name == tierName } ?: return
     val uiState by viewModel.uiState.collectAsState()
 
     var cardName by remember { mutableStateOf("") }
@@ -53,10 +54,12 @@ fun PaymentScreen(
     var expiry by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
 
+    val total = tier.price * quantity
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Confirm Reservation") },
+                title = { Text("Checkout") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -73,10 +76,15 @@ fun PaymentScreen(
         ) {
             Card(elevation = CardDefaults.cardElevation(defaultElevation = 1.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(site.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(site.category.label, style = MaterialTheme.typography.bodyMedium)
-                    Text(scheduledFor, style = MaterialTheme.typography.bodyMedium)
-                    Text("$partySize guest(s)", style = MaterialTheme.typography.bodyMedium)
+                    Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(event.date, style = MaterialTheme.typography.bodyMedium)
+                    Text("${tier.name} × $quantity", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Total: $${"%.2f".format(total)}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = FBGold
+                    )
                 }
             }
 
@@ -85,7 +93,7 @@ fun PaymentScreen(
                 Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    "Demo card on file — no charge now, pricing is handled directly with the venue",
+                    "Demo checkout — no real charge will be made",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -125,10 +133,10 @@ fun PaymentScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
             FarayaButton(
-                text = "Confirm Reservation",
+                text = "Pay $${"%.2f".format(total)}",
                 isLoading = uiState.isProcessing,
                 onClick = {
-                    viewModel.reserveSite(site, partySize, scheduledFor, cardNumber, expiry, cvv) { reservationId ->
+                    viewModel.buyEventTickets(event, tier, quantity, cardNumber, expiry, cvv) { reservationId ->
                         onPaymentSuccess(reservationId)
                     }
                 }

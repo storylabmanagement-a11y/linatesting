@@ -34,6 +34,10 @@ class AuthRepository(
         }
     }
 
+    suspend fun signInWithCredential(credential: com.google.firebase.auth.AuthCredential) {
+        auth.signInWithCredential(credential).await()
+    }
+
     suspend fun signIn(email: String, password: String): Result<Unit> {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()

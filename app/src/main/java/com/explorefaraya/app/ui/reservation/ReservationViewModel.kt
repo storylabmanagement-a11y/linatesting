@@ -2,8 +2,10 @@ package com.explorefaraya.app.ui.reservation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.explorefaraya.app.data.model.ExploreListing
+import com.explorefaraya.app.data.model.EventItem
 import com.explorefaraya.app.data.model.Reservation
+import com.explorefaraya.app.data.model.TicketTier
+import com.explorefaraya.app.data.model.TouristSite
 import com.explorefaraya.app.data.repository.ReservationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +34,16 @@ class ReservationViewModel(
         }
     }
 
-    fun pay(
-        listing: ExploreListing,
+    private fun validateCard(cardNumber: String, expiry: String, cvv: String): String? {
+        val digitsOnly = cardNumber.filter { it.isDigit() }
+        if (digitsOnly.length < 12) return "Enter a valid card number."
+        if (!expiry.matches(Regex("^\\d{2}/\\d{2}$"))) return "Enter expiry as MM/YY."
+        if (cvv.length < 3) return "Enter a valid CVV."
+        return null
+    }
+
+    fun reserveSite(
+        site: TouristSite,
         partySize: Int,
         scheduledFor: String,
         cardNumber: String,
@@ -41,45 +51,68 @@ class ReservationViewModel(
         cvv: String,
         onSuccess: (reservationId: String) -> Unit
     ) {
-        val digitsOnly = cardNumber.filter { it.isDigit() }
-        if (digitsOnly.length < 12) {
-            _uiState.value = PaymentUiState(errorMessage = "Enter a valid card number.")
-            return
-        }
-        if (!expiry.matches(Regex("^\\d{2}/\\d{2}$"))) {
-            _uiState.value = PaymentUiState(errorMessage = "Enter expiry as MM/YY.")
-            return
-        }
-        if (cvv.length < 3) {
-            _uiState.value = PaymentUiState(errorMessage = "Enter a valid CVV.")
-            return
+        validateCard(cardNumber, expiry, cvv)?.let {
+            _uiState.value = PaymentUiState(errorMessage = it); return
         }
         if (scheduledFor.isBlank()) {
             _uiState.value = PaymentUiState(errorMessage = "Enter a preferred date/time.")
             return
         }
-
-        // Real listings are a contact directory, not a priced inventory — there's no fare/rate
-        // to charge, so this confirms the reservation request without a monetary total.
         _uiState.value = PaymentUiState(isProcessing = true)
         viewModelScope.launch {
-            // Simulated payment authorization delay (no real charge, no gateway wired up).
-            delay(1400)
+            delay(1400) // simulated authorization delay — no real charge, no gateway wired up
             try {
-                val reservationId = repository.createReservation(
-                    listingId = listing.id,
-                    listingTitle = listing.name,
-                    category = listing.category,
-                    contact = listing.phone,
+                val id = repository.createReservation(
+                    type = "listing",
+                    listingId = site.id,
+                    listingTitle = site.name,
+                    category = site.category.label,
+                    contact = site.phone,
                     scheduledFor = scheduledFor,
                     partySize = partySize,
                     unitPrice = 0.0,
                     totalPrice = 0.0
                 )
                 _uiState.value = PaymentUiState()
-                onSuccess(reservationId)
+                onSuccess(id)
             } catch (e: Exception) {
-                _uiState.value = PaymentUiState(errorMessage = e.message ?: "Payment failed. Please try again.")
+                _uiState.value = PaymentUiState(errorMessage = e.message ?: "Something went wrong. Please try again.")
+            }
+        }
+    }
+
+    fun buyEventTickets(
+        event: EventItem,
+        tier: TicketTier,
+        quantity: Int,
+        cardNumber: String,
+        expiry: String,
+        cvv: String,
+        onSuccess: (reservationId: String) -> Unit
+    ) {
+        validateCard(cardNumber, expiry, cvv)?.let {
+            _uiState.value = PaymentUiState(errorMessage = it); return
+        }
+        _uiState.value = PaymentUiState(isProcessing = true)
+        viewModelScope.launch {
+            delay(1400) // simulated authorization delay — no real charge, no gateway wired up
+            try {
+                val id = repository.createReservation(
+                    type = "event",
+                    listingId = event.id,
+                    listingTitle = event.title,
+                    category = event.category,
+                    contact = event.venue,
+                    scheduledFor = event.date,
+                    tierName = tier.name,
+                    partySize = quantity,
+                    unitPrice = tier.price,
+                    totalPrice = tier.price * quantity
+                )
+                _uiState.value = PaymentUiState()
+                onSuccess(id)
+            } catch (e: Exception) {
+                _uiState.value = PaymentUiState(errorMessage = e.message ?: "Something went wrong. Please try again.")
             }
         }
     }
