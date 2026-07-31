@@ -8,14 +8,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.explorefaraya.app.R
 
-// Editorial serif for headers, clean sans for body — "boutique concierge", not
-// generic tourism-board styling.
-val FBSerif = FontFamily(
-    Font(R.font.playfair_regular, FontWeight.Normal),
-    Font(R.font.playfair_bold, FontWeight.Bold),
-    Font(R.font.playfair_black, FontWeight.Black)
-)
-
+// Single clean sans-serif throughout, matching the approved mockups —
+// no serif display font anywhere in the design.
 val FBSans = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),
     Font(R.font.inter_medium, FontWeight.Medium),
@@ -25,53 +19,53 @@ val FBSans = FontFamily(
 
 val ExploreFarayaTypography = Typography(
     headlineLarge = TextStyle(
-        fontFamily = FBSerif,
-        fontWeight = FontWeight.Black,
-        fontSize = 32.sp,
-        lineHeight = 38.sp,
+        fontFamily = FBSans,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
         color = FBOffWhite
     ),
     headlineMedium = TextStyle(
-        fontFamily = FBSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 26.sp,
-        lineHeight = 32.sp,
+        fontFamily = FBSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
         color = FBOffWhite
     ),
     titleLarge = TextStyle(
-        fontFamily = FBSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        lineHeight = 26.sp,
+        fontFamily = FBSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 17.sp,
+        lineHeight = 23.sp,
         color = FBOffWhite
     ),
     titleMedium = TextStyle(
-        fontFamily = FBSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 17.sp,
-        lineHeight = 22.sp,
+        fontFamily = FBSans,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
         color = FBOffWhite
     ),
     bodyLarge = TextStyle(
         fontFamily = FBSans,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
+        fontSize = 15.sp,
+        lineHeight = 22.sp,
         color = FBMutedGray
     ),
     bodyMedium = TextStyle(
         fontFamily = FBSans,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        color = FBMutedGray
+        fontSize = 12.5.sp,
+        lineHeight = 18.sp,
+        color = FBMutedGold
     ),
     labelLarge = TextStyle(
         fontFamily = FBSans,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 13.sp,
-        lineHeight = 18.sp,
-        letterSpacing = 1.2.sp,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 15.sp,
+        letterSpacing = 0.3.sp,
         color = FBGold
     ),
 )
